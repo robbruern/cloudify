@@ -1,8 +1,9 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Amplify, { API } from 'aws-amplify';
-import { Auth } from 'aws-amplify';
+import Amplify from '@aws-amplify/core';
+import API from '@aws-amplify/api';
+import Auth from '@aws-amplify/auth';
 import awsconfig from 'aws-exports.js';
 
 Amplify.configure(awsconfig);
