@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/items",
+            "lambdaFunction": "cloudify9a834bdd",
+            "privacy": {
+                "open": true
+            },
+            "policyResourceName": "/items"
+        }
+    ],
+    "resourceName": "api296dcdab",
+    "apiName": "api296dcdab",
+    "functionArns": [
+        {
+            "lambdaFunction": "cloudify9a834bdd"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "amplify-cloudify-dev-230442-authRole",
+        "unAuthRoleName": "amplify-cloudify-dev-230442-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "cloudify9a834bdd",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}
