@@ -18,7 +18,7 @@ function App() {
     return <div className="app">
       You must login with Spotify to continue.
       <SpotifyAuth
-        redirectUri='http://localhost:3000/callback'
+        redirectUri='http://52.14.205.92:3000/callback'
         clientID='97f09e12e273458e9cc101218963d6c5'
         scopes={[Scopes.userReadPrivate, 'user-read-email']}
       />
@@ -26,7 +26,7 @@ function App() {
   }
   else {
     // send the token to the backend
-    axios.post('http://localhost:5000/token', {token: token})
+    axios.post('http://52.14.205.92:5000/token', {token: token})
       .then(function (response) {
         console.log(response);
       })
