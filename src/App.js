@@ -4,7 +4,7 @@ import './App.css';
 import Amplify from '@aws-amplify/core';
 import API from '@aws-amplify/api';
 import Auth from '@aws-amplify/auth';
-import awsconfig from 'aws-exports';
+import awsconfig from './aws-exports.js';
 
 Amplify.configure(awsconfig);
 
