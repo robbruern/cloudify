@@ -1,7 +1,7 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 
-import { SpotifyApiContext } from 'react-spotify-api'
+//import { SpotifyApiContext } from 'react-spotify-api'
 import Cookies from 'js-cookie'
 import { SpotifyAuth, Scopes } from 'react-spotify-auth'
 import 'react-spotify-auth/dist/index.css'
@@ -15,7 +15,7 @@ function App() {
 
   // if we don't have the token, render the 
   if (!token) {
-    return <div className="app">
+    return <div className="login_button">
       You must login with Spotify to continue.
       <SpotifyAuth
         redirectUri='http://52.14.205.92:3000/callback'
