@@ -9,13 +9,18 @@ const axios = require('axios');
 
 
 function App() {
-
+  document.body.style.background = "#352F2E";
   // load token from cookies, if previously saved
   const token = Cookies.get("spotifyAuthToken");
 
   // if we don't have the token, render the 
-  if (!token) {
-    return <div className="login_button">
+  //if (!token) {
+if(1){	  
+    return <div className="login_container">
+    <div className="header">
+     <h1>Welcome to Cloudify!</h1>
+	</div>
+    <div className="login_button">
       You must login with Spotify to continue.
       <SpotifyAuth
         redirectUri='http://52.14.205.92:3000/callback'
@@ -23,6 +28,8 @@ function App() {
         scopes={[Scopes.userReadPrivate, 'user-read-email']}
       />
     </div>
+   </div>
+ 
   }
   else {
     // send the token to the backend
@@ -34,7 +41,9 @@ function App() {
         console.log(error);
       });
     return <div className="app">
-      your app here
+      <div className="header">
+	<h1>Welcom Back to Cloudify!</h1>
+      </div>
     </div>
   }
 }
