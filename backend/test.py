@@ -1,7 +1,7 @@
 import mysql.connector
 
 print("got here")
-db = mysql.connector.connect(host="172.31.17.246",user="root",passwd="",db="Music",port="3306")
+db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
 print("connected")
 cursor = self.db.cursor()
 print("help")
