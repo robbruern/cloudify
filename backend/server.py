@@ -13,7 +13,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 def token():
     tokenData = request.json['token']
     addRecentlyListened(tokenData)
-    return "penis"
+    print(getRecentlyListened(tokenData))
+    return str(getRecentlyListened(tokenData))
 
 @app.route('/update', methods = ['POST'])
 @cross_origin()
@@ -24,7 +25,14 @@ def update():
 @cross_origin()
 def deleteUser():
     tokenData = request.json['token']
-    deleteUser(tokenData)
+    deleteUserRecentlyPlayed(tokenData)
     return "delete completed"
+
+@app.route('/demoQuery', methods = ['POST'])
+@cross_origin()
+def demoQuery():
+    tokenData = request.json['token']
+    print(getRecentlyListened(tokenData))
+    return str(getRecentlyListened(tokenData))
 
 app.run(port = 5000, host = "0.0.0.0")

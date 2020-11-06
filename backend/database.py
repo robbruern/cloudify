@@ -83,11 +83,11 @@ def delete_recently_played(userID):
 
     delete_user = ("DELETE FROM ActiveUsers WHERE UserID LIKE %s")
     cursor.execute(delete_user, (userID,))
+    db.commit()
+    cursor.close()
+    db.close()
     return
 
 
     
 
-insert_recently_played("pog", "DanSucks", "Filip", 0.9, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, "Country")
-print(retrieve_recently_played("pog"))
-delete_recently_played("pog")
