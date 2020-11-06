@@ -5,6 +5,8 @@ import json
 from database import *
 
 
+insert_recently_played(userID, songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
+
 def getUserID(token):
     authHeader = {'Authorization' : "Bearer " + token}
     userResults = requests.get("https://api.spotify.com/v1/me", headers = authHeader)
@@ -20,9 +22,9 @@ def addRecentlyListened(token):
     data = json.loads(recentlyPlayedResults.text)
     for item in data['items']:
         track = item['track']
-        audioFeaturesResults = requests.get('https://api.spotify.com/v1/audio-features/' + track['id'], headers = authHeader, params = {'id' : track['id']})
+        audioFeaturesResults = requests.get('https://api.spotify.com/v1/audio-features/' + track['id'], headers = authHeader, params = {'id' : trackID})
         featureData = json.loads(audioFeaturesResults.text)
         insert_recently_played(getUserID(token), track['id'], track['name'], featureData['acousticness'], featureData['danceability'], featureData['energy'],
                                 featureData['instrumentalness'], featureData['liveness'], featureData['speechiness'], featureData['valence'], featureData['tempo'],
-                                "noGenre")
+                                featureData['genre'])
     print(data['items'][0]['track']['name'])

@@ -23,6 +23,8 @@ def update():
 @app.route('/deleteUser', methods = ['POST'])
 @cross_origin()
 def deleteUser():
-    return "delete not yet implemented"
+    tokenData = request.json['token']
+    deleteUser(tokenData)
+    return "delete completed"
 
 app.run(port = 5000, host = "0.0.0.0")
