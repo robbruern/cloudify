@@ -36,6 +36,35 @@ def insert_recently_played(userID, songID, songName, acousticness, danceability,
     return
 
 def retrieve_recently_played(userID):
-    pass
+    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
+    cursor.execute(query, (userID,))
+
+    isIn = False
+    for (user) in cursor:
+        isIn = True
+
+    # User is not in Database
+    if(isIn == False):
+        return None
+
+    query = ("SELECT * FROM RecentlyPlayed WHERE UserID LIKE %s")
+    cursor.execute(query, (userID,))
+    
+    ret = ()
+    for tup in cursor:
+        ret = tup
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return ret
+
+
+    
 
 insert_recently_played("pog", "DanSucks", "Filip", 0.9, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, "Country")
+print(retrieve_recently_played("pog"))
