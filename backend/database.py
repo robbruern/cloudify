@@ -63,8 +63,31 @@ def retrieve_recently_played(userID):
 
     return ret
 
+def delete_recently_played(userID):
+    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
+    cursor.execute(query, (userID,))
+
+    isIn = False
+    for (user) in cursor:
+        isIn = True
+
+    # User is not in Database
+    if(isIn == False):
+        return
+
+    delete_recent = ("DELETE FROM RecentlyPlayed WHERE UserID LIKE %s")
+    cursor.execute(delete_recent, (userID,))
+
+    delete_user = ("DELETE FROM ActiveUsers WHERE UserID LIKE %s")
+    cursor.execute(delete_user, (userID,))
+    return
+
 
     
 
 insert_recently_played("pog", "DanSucks", "Filip", 0.9, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, "Country")
 print(retrieve_recently_played("pog"))
+delete_recently_played("pog")
