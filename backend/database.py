@@ -123,7 +123,7 @@ def insert_user_favorite_songs(userID, songList):
     # later to s[11] and s[12] in songList
 
     db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
-    cursor = db.cursor()
+    cursor = db.cursor(buffered = True)
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
     cursor.execute(query, (userID,))
@@ -151,8 +151,8 @@ def insert_user_favorite_songs(userID, songList):
     return
 
 data = []
-data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,"sad again"))
-data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,0.2,"not sad"))
+data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again"))
+data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad"))
 insert_user_favorite_songs("test", data)
 
     
