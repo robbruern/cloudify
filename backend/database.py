@@ -150,6 +150,34 @@ def insert_user_favorite_songs(userID, songList):
     db.close()
     return
 
+def delete_user(userID):
+    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
+    cursor.execute(query, (userID,))
+
+    isIn = False
+    for (user) in cursor:
+        isIn = True
+
+    # User is not in Database
+    if(isIn == False):
+        return
+
+    delete_recent = ("DELETE FROM RecentlyPlayed WHERE UserID LIKE %s")
+    cursor.execute(delete_recent, (userID,))
+
+    delete_favorite = ("DELETE FROM UsersFavoriteSongs WHERE UserID LIKE %s")
+    cursor.execute(delete_favorite, (userID,))
+
+    delete_user = ("DELETE FROM ActiveUsers WHERE UserID LIKE %s")
+    cursor.execute(delete_user, (userID,))
+    db.commit()
+    cursor.close()
+    db.close()
+    return
+
 data = []
 data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again"))
 data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad"))
