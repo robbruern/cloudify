@@ -116,7 +116,7 @@ def insert_artist_table(cursor, songList):
 
 # this method will also call insert_song_table so we can
 # work with a collection of data later
-def insert_user_favorite_songs(userID, songList):
+def insert_user_favorite_songs(userID, userName, songList):
     # list of (userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10])
     # (songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
     # should add ArtistID and ArtistsName 
@@ -129,20 +129,20 @@ def insert_user_favorite_songs(userID, songList):
     cursor.execute(query, (userID,))
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
-    "(UserID, SongID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo, Genre)"
-    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+    "(UserID, SongID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo)"
+    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
     insert_song_data = []
     for s in songList:
-        insert_song_data.append((userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10]))
+        insert_song_data.append((userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
     cursor.executemany(insert_recent, insert_song_data)
 
     insert_song_table(cursor, songList)
     insert_artist_table(cursor, songList)
 
     insert_user = ("INSERT IGNORE INTO ActiveUsers"
-    "(UserID)"
-    "VALUES (%s)")
-    insert_user_data = (userID,)
+    "(UserID, Name)"
+    "VALUES (%s, %s)")
+    insert_user_data = (userID,userName)
     cursor.execute(insert_user, insert_user_data)
 
     db.commit()
@@ -181,7 +181,7 @@ def delete_user(userID):
 data = []
 data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again"))
 data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad"))
-insert_user_favorite_songs("test", data)
+insert_user_favorite_songs("test", "helperino" data)
 
     
 
