@@ -101,7 +101,7 @@ def insert_artist_table(cursor, insert_artist_table):
     insert_artist = ("INSERT IGNORE INTO SpotifyArtist"
         "(ArtistID, ArtistName, Genre)"
         "VALUES (%s, %s, %s)")
-    cursor.executemany(insert_artist, data)
+    cursor.executemany(insert_artist, insert_artist_table)
     
     
 
@@ -122,7 +122,7 @@ def insert_user_favorite_songs(userID, userName, songInfoList):
     insert_artist_data = []
     for s in songInfoList:
         insert_user_song_data.append((userID, s[0]))
-        insert_song_data.append((s[0], s[10], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
+        insert_song_data.append((s[0], s[11], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
         insert_artist_data.append((s[10], s[11], s[12]))
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
