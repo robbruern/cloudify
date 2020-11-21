@@ -89,26 +89,18 @@ def delete_recently_played(userID):
     return
 
 
-def insert_song_table(cursor, songList):
+def insert_song_table(cursor, insert_song_table):
     
     insert_song = ("INSERT IGNORE INTO SpotifySong"
         "(SongID, ArtistID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo)"
         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-    data = []
-    for s in songList:
-        data.append(( s[0], "Lil Beep", s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
+    cursor.executemany(insert_song, insert_song_table)
 
-    cursor.executemany(insert_song, data)
-
-def insert_artist_table(cursor, songList):
+def insert_artist_table(cursor, insert_artist_table):
     
     insert_artist = ("INSERT IGNORE INTO SpotifyArtist"
         "(ArtistID, ArtistName, Genre)"
         "VALUES (%s, %s, %s)")
-    data = []
-    for s in songList:
-        data.append(( "Emo", "Lil Beep", s[10]))
-
     cursor.executemany(insert_artist, data)
     
     
@@ -116,7 +108,7 @@ def insert_artist_table(cursor, songList):
 
 # this method will also call insert_song_table so we can
 # work with a collection of data later
-def insert_user_favorite_songs(userID, userName, songList):
+def insert_user_favorite_songs(userID, userName, songInfoList):
     # list of (userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10])
     # (songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
     # should add ArtistID and ArtistsName 
@@ -125,19 +117,21 @@ def insert_user_favorite_songs(userID, userName, songList):
     db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor(buffered = True)
 
-    query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
-    cursor.execute(query, (userID,))
+    insert_user_song_data = []
+    insert_song_data = []
+    insert_artist_data = []
+    for s in songInfoList:
+        insert_user_song_data.append((userID, s[0]))
+        insert_song_data.append((s[0], s[10], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
+        insert_artist_data.append((s[10], s[11], s[12]))
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
-    "(UserID, SongID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo)"
-    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-    insert_song_data = []
-    for s in songList:
-        insert_song_data.append((userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
-    cursor.executemany(insert_recent, insert_song_data)
+    "(UserID, SongID)"
+    "VALUES (%s, %s)")
+    cursor.executemany(insert_recent, insert_user_song_data)
 
-    insert_song_table(cursor, songList)
-    insert_artist_table(cursor, songList)
+    insert_song_table(cursor, insert_song_data)
+    insert_artist_table(cursor, insert_artist_data)
 
     insert_user = ("INSERT IGNORE INTO ActiveUsers"
     "(UserID, Name)"
@@ -179,10 +173,10 @@ def delete_user(userID):
     return
 
 data = []
-data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again"))
-data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad"))
+data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
+data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
 insert_user_favorite_songs("test", "helperino", data)
-#delete_user("test"(
+#delete_user("test")
 
     
 
