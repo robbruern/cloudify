@@ -175,7 +175,7 @@ def delete_user(userID):
 #data = []
 #data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
 #data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
-insert_user_favorite_songs("test", "helperino", data)
+#insert_user_favorite_songs("test", "helperino", data)
 #delete_user("test")
 
     
