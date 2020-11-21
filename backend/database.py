@@ -123,7 +123,7 @@ def insert_user_favorite_songs(userID, userName, songInfoList):
     for s in songInfoList:
         insert_user_song_data.append((userID, s[0]))
         insert_song_data.append((s[0], s[11], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
-        insert_artist_data.append((s[10], s[11], s[12]))
+        insert_artist_data.append((s[11], s[12], s[10]))
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
     "(UserID, SongID)"
@@ -172,9 +172,9 @@ def delete_user(userID):
     db.close()
     return
 
-data = []
-data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
-data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
+#data = []
+#data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
+#data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
 insert_user_favorite_songs("test", "helperino", data)
 #delete_user("test")
 
