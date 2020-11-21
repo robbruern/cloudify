@@ -99,6 +99,17 @@ def insert_song_table(cursor, songList):
         data.append(( s[0], "Lil Beep", s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
 
     cursor.executemany(insert_song, data)
+
+def insert_artist_table(cursor, songList):
+    
+    insert_artist = ("INSERT IGNORE INTO SpotifyArtist"
+        "(ArtistID, ArtistName, Genre)"
+        "VALUES (%s, %s, %s)")
+    data = []
+    for s in songList:
+        data.append(( "Emo", "Lil Beep", s[10]))
+
+    cursor.executemany(insert_artist, data)
     
     
 
@@ -108,17 +119,14 @@ def insert_song_table(cursor, songList):
 def insert_user_favorite_songs(userID, songList):
     # list of (userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10])
     # (songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
-    # should add ArtistID later to s[11] in songList
+    # should add ArtistID and ArtistsName 
+    # later to s[11] and s[12] in songList
 
     db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
     cursor.execute(query, (userID,))
-
-    isIn = False
-    for (user) in cursor:
-        isIn = True
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
     "(UserID, SongID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo, Genre)"
@@ -129,13 +137,13 @@ def insert_user_favorite_songs(userID, songList):
     cursor.executemany(insert_recent, insert_song_data)
 
     insert_song_table(cursor, songList)
+    insert_artist_table(cursor, songList)
 
-    if not isIn:
-        insert_user = ("INSERT INTO ActiveUsers"
-        "(UserID)"
-        "VALUES (%s)")
-        insert_user_data = (userID,)
-        cursor.execute(insert_user, insert_user_data)
+    insert_user = ("INSERT IGNORE INTO ActiveUsers"
+    "(UserID)"
+    "VALUES (%s)")
+    insert_user_data = (userID,)
+    cursor.execute(insert_user, insert_user_data)
 
     db.commit()
     cursor.close()
