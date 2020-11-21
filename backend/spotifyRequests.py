@@ -43,4 +43,19 @@ def getRecentlyListened(token):
     if tableEntry:
         return tableEntry[2]
     return "Empty"
+
+def addUserLibraryToDatabase(token):
+    authHeader = {'Authorization' : "Bearer " + token}
+    userID = getUserID(token)
+    libraryData = json.loads(requests.get('https://api.spotify.com/v1/me/tracks', header = authHeader, params = {'limit' : 50}).text)
+    for item in libraryData['item']:
+        track = item['track']
+        audioFeaturesResults = requests.get('https://api.spotify.com/v1/audio-features/' + track['id'], headers = authHeader, params = {'id' : track['id']})
+        featureData = json.loads(audioFeaturesResults.text)
+        # insert_favorites(getUserID(token), track['id'], track['name'], featureData['acousticness'], featureData['danceability'], featureData['energy'],
+        #                         featureData['instrumentalness'], featureData['liveness'], featureData['speechiness'], featureData['valence'], featureData['tempo'],
+        #                         "noGenre")
+        
+
+    
     
