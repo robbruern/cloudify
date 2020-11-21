@@ -57,5 +57,10 @@ def addUserLibraryToDatabase(token):
         #                         "noGenre")
         
 
-    
+# TO DO: Add a method that adds the top 50 songs of a user to sql database
+# we can add more or less, but 50 seems like the limit of this method
+# https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/
+# Also as a sidenote, even if we delete users I think we should delete songs
+# from UsersFavoriteSongs, but not SpotifySong table
+
     

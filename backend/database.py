@@ -88,6 +88,44 @@ def delete_recently_played(userID):
     db.close()
     return
 
+def insert_user_favorite_songs(userID, songList):
+    # list of (userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10])
+    # (songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
+
+    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
+    cursor.execute(query, (userID,))
+
+    isIn = False
+    for (user) in cursor:
+        isIn = True
+
+    insert_recent = ("INSERT INTO UsersFavoriteSongs"
+    "(UserID, SongID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo, Genre)"
+    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+    insert_song_data = []
+    for s in songList:
+        insert_song_data.append((userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10]))
+    cursor.execute(insert_recent, insert_song_data)
+
+    if not isIn:
+        insert_user = ("INSERT INTO ActiveUsers"
+        "(UserID)"
+        "VALUES (%s)")
+        insert_user_data = (userID,)
+        cursor.execute(insert_user, insert_user_data)
+
+    db.commit()
+    cursor.close()
+    db.close()
+    return
+
+data = []
+data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,"sad again"))
+data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,0.2,"not sad"))
+insert_user_favorite_songs("test", data)
 
     
 
