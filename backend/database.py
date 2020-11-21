@@ -91,12 +91,12 @@ def delete_recently_played(userID):
 
 def insert_song_table(cursor, songList):
     
-    insert_song = ("INSERT INTO SpotifySong"
-        "(SongID, ArtistID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo, Genre)"
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+    insert_song = ("INSERT IGNORE INTO SpotifySong"
+        "(SongID, ArtistID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo)"
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
     data = []
     for s in songList:
-        data.append(( s[0], "Lil Beep" s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10]))
+        data.append(( s[0], "Lil Beep", s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
 
     cursor.executemany(insert_song, data)
     
@@ -120,7 +120,7 @@ def insert_user_favorite_songs(userID, songList):
     for (user) in cursor:
         isIn = True
 
-    insert_recent = ("INSERT INTO UsersFavoriteSongs"
+    insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
     "(UserID, SongID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo, Genre)"
     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
     insert_song_data = []
