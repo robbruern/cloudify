@@ -180,16 +180,46 @@ def build_friends_recommended_playlist(friendID, numSongs):
     db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
-    query = ("SELECT AVG(Acousticness), AVG(Danceability), AVG(Energy), AVG(Instrumentalness),"
-    "AVG(Liveness), AVG(Speechiness), AVG(Valence), AVG(Tempo)" 
-    "FROM UsersFavoriteSongs NATURAL JOIN SpotifySong"
-    "WHERE UserID LIKE %s")
-    cursor.execute(query, (friendID,))
+    # retrive avg values for every song's float parameters
+    agg_query = ("SELECT AVG(Acousticness), AVG(Danceability), AVG(Energy), AVG(Instrumentalness),"
+    " AVG(Liveness), AVG(Speechiness), AVG(Valence), AVG(Tempo)" 
+    " FROM UsersFavoriteSongs NATURAL JOIN SpotifySong"
+    " WHERE UserID LIKE %s")
+    cursor.execute(agg_query, (friendID,))
 
+    avgAcoustic = 0.0
+    avgDance = 0.0
+    avgEnergy = 0.0
+    avgInstrument = 0.0
+    avgLive = 0.0
+    avgSpeech = 0.0
+    avgValence = 0.0
+    avgTempo = 0.0
+    
     isIn = False
-    for item in cursor:
+    for agg in cursor:
         isIn = True
-        print(item)
+        avgAcoustic = agg[0]
+        avgDance = agg[1]
+        avgEnergy = agg[2]
+        avgInstrument = agg[3]
+        avgLive = agg[4]
+        avgSpeech = agg[5]
+        avgValence = agg[6]
+        avgTempo = agg[7]
+
+    if isIn is False:
+        return
+
+    song_query = ("SELECT Acousticness, Danceability, Energy, Instrumentalness,"
+    " Liveness, Speechiness, Valence, Tempo, ArtistID" 
+    " FROM SpotifySong")
+
+    cursor.execute(agg_query, ())
+    
+    for song in cursor:
+        print(song)
+
     return 
 
 data = []
