@@ -172,10 +172,31 @@ def delete_user(userID):
     db.close()
     return
 
-#data = []
-#data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
-#data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
-#insert_user_favorite_songs("test", "helperino", data)
+# will return a list of song IDs
+# takes ID of friend and number of songs for playlist
+# if there aren't enough songs, will return max
+# but it shoudlnt be an issue once we have enough data
+def build_friends_recommended_playlist(friendID, numSongs):
+    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT AVG(Acousticness), AVG(Danceability), AVG(Energy), AVG(Instrumentalness),"
+    "AVG(Liveness), AVG(Speechiness), AVG(Valence), AVG(Tempo)" 
+    "FROM UsersFavoriteSongs NATURAL JOIN SpotifySong"
+    "WHERE UserID LIKE %s")
+    cursor.execute(query, (friendID,))
+
+    isIn = False
+    for item in cursor:
+        isIn = True
+        print(item)
+    return 
+
+data = []
+data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
+data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
+insert_user_favorite_songs("test", "helperino", data)
+build_friends_recommended_playlist("test", 1)
 #delete_user("test")
 
     
