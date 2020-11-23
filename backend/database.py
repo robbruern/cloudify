@@ -1,4 +1,6 @@
 import mysql.connector
+import heapq
+
 
 def insert_recently_played(userID, songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre):
     db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
@@ -211,22 +213,44 @@ def build_friends_recommended_playlist(friendID, numSongs):
     if isIn is False:
         return
 
-    song_query = ("SELECT Acousticness, Danceability, Energy, Instrumentalness,"
-    " Liveness, Speechiness, Valence, Tempo, ArtistID" 
-    " FROM SpotifySong")
+    song_query = ("SELECT * FROM SpotifySong")
 
-    cursor.execute(agg_query, ())
+    cursor.execute(song_query, ())
     
+    song_heap = []
+
     for song in cursor:
-        print(song)
+        total = 0.0
+        total += abs(avgAcoustic - song[3])
+        total += abs(avgDance - song[4])
+        total += abs(avgEnergy - song[5])
+        total += abs(avgInstrument - song[6])
+        total += abs(avgLive - song[7])
+        total += abs(avgSpeech - song[8])
+        total += abs(avgValence - song[9])
+        total += abs(avgTempo - song[10])
+        heappush(song_heap, (total, song[0], song[2]))
+
+    for i in range(numSongs):
+        if len(song_heap) == 0:
+            break
+        print(heappop(song_heap))
+
 
     return 
 
+#user1
 data = []
 data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
 data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
 insert_user_favorite_songs("test", "helperino", data)
-build_friends_recommended_playlist("test", 1)
+
+#user2
+data = []
+data.append(("5687", "sappy", 0.1,0.55,0.3,0.55,0.5,0.6,0.55,0.8,"saddest", "12345", "Lil Beep"))
+data.append(("8765", "had", 0.1,0.6,0.3,0.6,0.5,0.6,0.55,0.8,"suicidal", "23456", "Biggy Wiggy"))
+insert_user_favorite_songs("unit", "nofriends", data)
+build_friends_recommended_playlist("test", 2)
 #delete_user("test")
 
     
