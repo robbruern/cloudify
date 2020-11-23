@@ -1,4 +1,5 @@
-import mysql.connector
+import pymysql
+#import mysql.connector
 import heapq
 
 
@@ -116,8 +117,8 @@ def insert_user_favorite_songs(userID, userName, songInfoList):
     # should add ArtistID and ArtistsName 
     # later to s[11] and s[12] in songList
 
-    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
-    cursor = db.cursor(buffered = True)
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
 
     insert_user_song_data = []
     insert_song_data = []
@@ -179,7 +180,7 @@ def delete_user(userID):
 # if there aren't enough songs, will return max
 # but it shoudlnt be an issue once we have enough data
 def build_friends_recommended_playlist(friendID, numSongs):
-    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     # retrive avg values for every song's float parameters
@@ -237,6 +238,11 @@ def build_friends_recommended_playlist(friendID, numSongs):
             break
         num, songID, name = heapq.heappop(song_heap)
         song_list.append((songID, name))
+
+
+    db.commit()
+    cursor.close()
+    db.close()
 # returns a list of tuples (song ID, song name)
     return song_list 
 
