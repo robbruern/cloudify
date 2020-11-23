@@ -229,15 +229,16 @@ def build_friends_recommended_playlist(friendID, numSongs):
         total += abs(avgSpeech - song[8])
         total += abs(avgValence - song[9])
         total += abs(avgTempo - song[10])
-        heappush(song_heap, (total, song[0], song[2]))
+        heapq.heappush(song_heap, (total, song[0], song[2]))
 
+    song_list = []
     for i in range(numSongs):
         if len(song_heap) == 0:
             break
-        print(heappop(song_heap))
-
-
-    return 
+        num, songID, name = heapq.heappop(song_heap)
+        song_list.append((songID, name))
+# returns a list of tuples (song ID, song name)
+    return song_list 
 
 #user1
 data = []
@@ -250,7 +251,7 @@ data = []
 data.append(("5687", "sappy", 0.1,0.55,0.3,0.55,0.5,0.6,0.55,0.8,"saddest", "12345", "Lil Beep"))
 data.append(("8765", "had", 0.1,0.6,0.3,0.6,0.5,0.6,0.55,0.8,"suicidal", "23456", "Biggy Wiggy"))
 insert_user_favorite_songs("unit", "nofriends", data)
-build_friends_recommended_playlist("test", 2)
+print(build_friends_recommended_playlist("test", 2))
 #delete_user("test")
 
     
