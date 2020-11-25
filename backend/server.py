@@ -16,6 +16,12 @@ def token():
     print(getRecentlyListened(tokenData))
     return str(getRecentlyListened(tokenData))
 
+@app.route('/activeUsers', methods = ['GET'])
+@cross_origin()
+def activeUsers():
+    print(retrieve_active_users())
+    return "retrieve completed"
+
 @app.route('/update', methods = ['POST'])
 @cross_origin()
 def update():

@@ -4,7 +4,7 @@ import heapq
 
 
 def insert_recently_played(userID, songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre):
-    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
@@ -38,8 +38,25 @@ def insert_recently_played(userID, songID, songName, acousticness, danceability,
     db.close()
     return
 
+def retrieve_active_users():
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID FROM ActiveUsers")
+    cursor.execute(query, ())
+
+    ret = ()
+    for tup in cursor:
+        ret = tup
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return ret
+
 def retrieve_recently_played(userID):
-    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
@@ -67,7 +84,7 @@ def retrieve_recently_played(userID):
     return ret
 
 def delete_recently_played(userID):
-    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
@@ -148,7 +165,7 @@ def insert_user_favorite_songs(userID, userName, songInfoList):
     return
 
 def delete_user(userID):
-    db = mysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    db = pymysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")

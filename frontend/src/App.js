@@ -70,7 +70,7 @@ if(!token){
           <Card.Text>
             {friend}
           </Card.Text>
-          <Button variant="success">Create Playlist</Button>
+          <Button variant="success" onClick={() => getActiveUsers()} >Create Playlist</Button>
         </Card.Body>
       </Card>
       </Col>
@@ -81,6 +81,16 @@ if(!token){
   </div>
 
   }
+}
+
+function getActiveUsers(){
+  axios.get('http://52.14.205.92:5000/activeUsers')
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
 }
 
 export default App;
