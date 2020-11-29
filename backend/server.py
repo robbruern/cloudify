@@ -16,7 +16,7 @@ def token():
     userName = getUsername(tokenData)
     print(userID, userName)
     insert_user(userID, userName)
-    return "User Verified and Added to Active Users"
+    return userName
 
 @app.route('/activeUsers', methods = ['GET'])
 @cross_origin()

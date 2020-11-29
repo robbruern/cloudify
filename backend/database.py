@@ -55,6 +55,40 @@ def retrieve_active_users():
 
     return ret
 
+def retrieve_active_userIDs():
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID FROM ActiveUsers")
+    cursor.execute(query)
+
+    ret = []
+    for tup in cursor:
+        ret.append(tup[0])
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return ret
+
+def retrieve_artistIDs():
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT ArtistID FROM SpotifyArtist")
+    cursor.execute(query)
+
+    ret = []
+    for tup in cursor:
+        ret.append(tup[0])
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return ret
+
 def retrieve_recently_played(userID):
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
@@ -243,6 +277,18 @@ def build_friends_recommended_playlist(friendID, numSongs):
     if isIn is False:
         return
 
+    artist_query = ("SELECT DISTINCT ArtistID, Genre"
+            "FROM UsersFavoriteSongs NATURAL JOIN SpotifyArtist")
+
+    cursor.execute(artist_query, ())
+
+    genre_list = []
+    artist_list = []
+    for art in cursor:
+        artist_list.append(art[0])
+        if art[1] is not in genre_list:
+            genre_list.append(art[1])
+
     song_query = ("SELECT * FROM SpotifySong")
 
     cursor.execute(song_query, ())
@@ -274,20 +320,4 @@ def build_friends_recommended_playlist(friendID, numSongs):
     db.close()
 # returns a list of tuples (song ID, song name)
     return song_list 
-
-#user1
-data = []
-data.append(("1234", "sad", 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,"sad again", "23232", "Lil Beep"))
-data.append(("4321", "happy", 0.1,0.9,0.3,0.7,0.5,0.6,0.4,0.8,"not sad", "23232", "Biggy Wiggy"))
-insert_user_favorite_songs("test", "helperino", data)
-
-#user2
-data = []
-data.append(("5687", "sappy", 0.1,0.55,0.3,0.55,0.5,0.6,0.55,0.8,"saddest", "12345", "Lil Beep"))
-data.append(("8765", "had", 0.1,0.6,0.3,0.6,0.5,0.6,0.55,0.8,"suicidal", "23456", "Biggy Wiggy"))
-insert_user_favorite_songs("unit", "nofriends", data)
-print(build_friends_recommended_playlist("test", 2))
-#delete_user("test")
-
-    
 

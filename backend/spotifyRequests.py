@@ -51,19 +51,6 @@ def getRecentlyListened(token):
         return tableEntry[2]
     return "Empty"
 
-def addUserLibraryToDatabase(token):
-    authHeader = {'Authorization' : "Bearer " + token}
-    userID = getUserID(token)
-    libraryData = json.loads(requests.get('https://api.spotify.com/v1/me/tracks', header = authHeader, params = {'limit' : 50}).text)
-    for item in libraryData['item']:
-        track = item['track']
-        audioFeaturesResults = requests.get('https://api.spotify.com/v1/audio-features/' + track['id'], headers = authHeader, params = {'id' : track['id']})
-        featureData = json.loads(audioFeaturesResults.text)
-        # insert_favorites(getUserID(token), track['id'], track['name'], featureData['acousticness'], featureData['danceability'], featureData['energy'],
-        #                         featureData['instrumentalness'], featureData['liveness'], featureData['speechiness'], featureData['valence'], featureData['tempo'],
-        #                         "noGenre")
-        
-
 # TO DO: Add a method that adds the top 50 songs of a user to sql database
 # we can add more or less, but 50 seems like the limit of this method
 # https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/
@@ -96,7 +83,16 @@ def getUserPodcasts(token):
 
 #function to determine if a user follows another user
 def checkFollowing(token, IDList):
+    #TODO: get list of users and artists from neo4j or relational database
+    userIDs = retrieve_active_userIDs()
+    artistIDs = retrieve_artistIDs()
+    string = ", "
+    userIDList = string.join(userIDs)
+    artistIDList = string.join(artistIDs)
+    print(userIDList)
+    print(artistIDList)
     authHeader = {'Authorization' : "Bearer " + token}
     url = 'https://api.spotify.com/v1/me/following/contains'
-    followData = json.loads(requests.get(url, headers = authHeader, params = {'ids' : IDList}))
-
+    userFollowData = json.loads(requests.get(url, headers = authHeader, params = {'ids' : userIDList}))
+    artistFollowData = json.loads(requests.get(url, headers = authHeader, params = {'ids' : artistIDList}))
+    
