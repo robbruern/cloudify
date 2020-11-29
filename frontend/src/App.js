@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import './App.css';
-
+import { useState, useEffect } from 'react'
 //import { SpotifyApiContext } from 'react-spotify-api'
 import Cookies from 'js-cookie'
 import { SpotifyAuth, Scopes } from 'react-spotify-auth'
@@ -10,14 +10,19 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 const axios = require('axios');
 
-let friends = [
-  'Ricky Machado',
-  'Filip Cakulev',
-  'Dan Spatz',
-  'Robbie Ernst'
-]
+let friends = [];
 
 function App() {
+  const [isLoading, setLoading] = useState(true);
+  const [users, setUsers] = useState();
+
+  useEffect(() => {
+    getActiveUsers(token).then(function(result){
+      setUsers(result);
+      setLoading(false);
+    });
+  }, []);
+
   document.body.style.background = "#352F2E";
   document.body.style.boxShadow = "inset 0 0 100px rgba(0, 0, 0, .5)";
   // load token from cookies, if previously saved
@@ -42,14 +47,8 @@ if(!token){
   }
   else {
     // send the token to the backend
-    axios.post('http://52.14.205.92:5000/token', {token: token})
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    return <div className="app">
+    if (isLoading){
+      return <div className="app">
       <div className="header">
         <h1>Welcome Back to Cloudify NAME !</h1>
       </div>
@@ -60,7 +59,7 @@ if(!token){
           <h2>Pick one of your friends to make a custom playlist with:</h2>
         </div>
       <Row className="text-center">
-      {friends.map((friend, name) => {
+      {friends.map((friend) => {
       return<Col>
       <Card className="friend">
         <Card.Body>
@@ -70,7 +69,7 @@ if(!token){
           <Card.Text>
             {friend}
           </Card.Text>
-          <Button variant="success" onClick={() => getActiveUsers()} >Create Playlist</Button>
+          <Button variant="success" >Create Playlist</Button>
         </Card.Body>
       </Card>
       </Col>
@@ -80,17 +79,58 @@ if(!token){
   </Container>
   </div>
 
+    }
+      return <div className="app">
+      <div className="header">
+        <h1>Welcome Back to Cloudify NAME !</h1>
+      </div>
+  <Container>
+    <Jumbotron>Info on what you can do with Cloudify</Jumbotron>
+    <Container className="friends">
+        <div className="friend-header">
+          <h2>Pick one of your friends to make a custom playlist with:</h2>
+        </div>
+      <Row className="text-center">
+      {users.map((friend) => {
+      return<Col>
+      <Card className="friend">
+        <Card.Body>
+          <Card.Title>
+            Friend
+          </Card.Title>
+          <Card.Text>
+            {friend}
+          </Card.Text>
+          <Button variant="success" >Create Playlist</Button>
+        </Card.Body>
+      </Card>
+      </Col>
+      })}
+      </Row>
+    </Container>
+  </Container>
+  </div>
+
+    console.log("Other one");
+    console.log(friends);
+    
   }
 }
 
-function getActiveUsers(){
-  axios.get('http://52.14.205.92:5000/activeUsers')
+async function sendToken(token){
+  await axios.post('http://52.14.205.92:5000/token', {token: token})
       .then(function (response) {
         console.log(response);
       })
       .catch(function (error) {
         console.log(error);
       });
+}
+
+async function getActiveUsers(token){
+  await sendToken(token);
+  const response = await axios.get('http://52.14.205.92:5000/activeUsers');
+  return response.data.split(",");
 }
 
 export default App;

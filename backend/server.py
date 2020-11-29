@@ -12,15 +12,22 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def token():
     tokenData = request.json['token']
-    addRecentlyListened(tokenData)
-    print(getRecentlyListened(tokenData))
-    return str(getRecentlyListened(tokenData))
+    userID = getUserID(tokenData)
+    userName = getUsername(tokenData)
+    print(userID, userName)
+    insert_user(userID, userName)
+    return "User Verified and Added to Active Users"
 
 @app.route('/activeUsers', methods = ['GET'])
 @cross_origin()
 def activeUsers():
-    print(retrieve_active_users())
-    return "retrieve completed"
+    users = (retrieve_active_users())
+    user_string = ""
+    for user in users:
+        user_string += user
+        if user != users[-1]:
+            user_string += ','
+    return str(user_string)
 
 @app.route('/update', methods = ['POST'])
 @cross_origin()

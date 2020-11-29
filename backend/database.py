@@ -42,12 +42,12 @@ def retrieve_active_users():
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
-    query = ("SELECT UserID FROM ActiveUsers")
-    cursor.execute(query, ())
+    query = ("SELECT Name FROM ActiveUsers")
+    cursor.execute(query)
 
-    ret = ()
+    ret = []
     for tup in cursor:
-        ret = tup
+        ret.append(tup[0])
 
     db.commit()
     cursor.close()
@@ -73,9 +73,9 @@ def retrieve_recently_played(userID):
     query = ("SELECT * FROM RecentlyPlayed WHERE UserID LIKE %s")
     cursor.execute(query, (userID,))
     
-    ret = ()
+    ret = []
     for tup in cursor:
-        ret = tup
+        ret.append(tup)
 
     db.commit()
     cursor.close()
@@ -123,7 +123,19 @@ def insert_artist_table(cursor, insert_artist_table):
         "VALUES (%s, %s, %s)")
     cursor.executemany(insert_artist, insert_artist_table)
     
-    
+def insert_user(userID, userName):
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+    insert_user = ("INSERT IGNORE INTO ActiveUsers"
+    "(UserID, Name)"
+    "VALUES (%s, %s)")
+    insert_user_data = (userID,userName)
+    cursor.execute(insert_user, insert_user_data)
+
+    db.commit()
+    cursor.close()
+    db.close()
+    return
 
 
 # this method will also call insert_song_table so we can

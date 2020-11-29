@@ -11,6 +11,13 @@ def getUserID(token):
     userData = json.loads(userResults.text)
     return userData['id']
 
+#gets a user's id
+def getUsername(token):
+    authHeader = {'Authorization' : "Bearer " + token}
+    userResults = requests.get("https://api.spotify.com/v1/me", headers = authHeader)
+    userData = json.loads(userResults.text)
+    return userData['display_name']
+
 
 #adds the user's most recently played song, but holds the ability to send more than one if we choose to implement that in the SQL file
 def addRecentlyListened(token):
@@ -64,3 +71,32 @@ def addUserLibraryToDatabase(token):
 # from UsersFavoriteSongs, but not SpotifySong table
 
     
+#function to get top songs of a user. Default limit is 50
+def getTopTracks(token, limit = 50):
+    authHeader = {'Authorization' : "Bearer " + token}
+    topTracks = json.loads(requests.get('https://api.spotify.com/v1/me/top/tracks', headers = authHeader, params = {'limit' : limit}))
+
+#function to get top artists of a user. Default limit is 50
+def getTopArtists(token, limit = 50):
+    authHeader = {'Authorization' : "Bearer " + token}
+    topArtists = json.loads(requests.get('https://api.spotify.com/v1/me/top/artists', headers = authHeader, params = {'limit' : limit}))
+
+#function to get all user's saved tracks
+def getUserLibrary(token):
+    authHeader = {'Authorization' : "Bearer " + token}
+    url = 'https://api.spotify.com/v1/me/tracks'
+    libraryData = json.loads(requests.get(url, headers = authHeader))
+
+#function ot get all user's saved podcasts (shows)
+def getUserPodcasts(token):
+    authHeader = {'Authorization' : "Bearer " + token}
+    url = 'https://api.spotify.com/v1/me/shows'
+    showData = json.loads(requests.get(url, headers = authHeader))
+
+
+#function to determine if a user follows another user
+def checkFollowing(token, IDList):
+    authHeader = {'Authorization' : "Bearer " + token}
+    url = 'https://api.spotify.com/v1/me/following/contains'
+    followData = json.loads(requests.get(url, headers = authHeader, params = {'ids' : IDList}))
+
