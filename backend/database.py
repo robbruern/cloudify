@@ -42,12 +42,12 @@ def retrieve_active_users():
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
-    query = ("SELECT Name FROM ActiveUsers")
+    query = ("SELECT UserID, Name FROM ActiveUsers")
     cursor.execute(query)
 
     ret = []
     for tup in cursor:
-        ret.append(tup[0])
+        ret.append(tup)
 
     db.commit()
     cursor.close()
@@ -211,7 +211,7 @@ def insert_user_favorite_songs(userID, userName, songInfoList):
     return
 
 def delete_user(userID):
-    db = pymysql.connector.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
     query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
@@ -264,7 +264,9 @@ def build_friends_recommended_playlist(friendID, numSongs):
     
     isIn = False
     for agg in cursor:
-        isIn = True
+        print("agg[0] is : " + str(type(agg[0])))
+        if agg[0] != None:
+            isIn = True
         avgAcoustic = agg[0]
         avgDance = agg[1]
         avgEnergy = agg[2]
@@ -277,7 +279,7 @@ def build_friends_recommended_playlist(friendID, numSongs):
     if isIn is False:
         return
 
-    artist_query = ("SELECT DISTINCT ArtistID, Genre"
+    artist_query = ("SELECT DISTINCT ArtistID, Genre "
             "FROM UsersFavoriteSongs NATURAL JOIN SpotifyArtist")
 
     cursor.execute(artist_query, ())
@@ -286,10 +288,10 @@ def build_friends_recommended_playlist(friendID, numSongs):
     artist_list = []
     for art in cursor:
         artist_list.append(art[0])
-        if art[1] is not in genre_list:
+        if art[1] not in genre_list:
             genre_list.append(art[1])
 
-    song_query = ("SELECT * FROM SpotifySong")
+    song_query = ("SELECT * FROM SpotifySong NATURAL JOIN SpotifyArtist")
 
     cursor.execute(song_query, ())
     
@@ -305,14 +307,18 @@ def build_friends_recommended_playlist(friendID, numSongs):
         total += abs(avgSpeech - song[8])
         total += abs(avgValence - song[9])
         total += abs(avgTempo - song[10])
-        heapq.heappush(song_heap, (total, song[0], song[2]))
-
+        if song[0] in artist_list:
+            total = total * .75
+        if song[12] in genre_list:
+            total = total * .5
+        heapq.heappush(song_heap, (total, song[1], song[2], song[11]))
+        print(song[11])
     song_list = []
     for i in range(numSongs):
         if len(song_heap) == 0:
             break
-        num, songID, name = heapq.heappop(song_heap)
-        song_list.append((songID, name))
+        num, songID, name, artist_name = heapq.heappop(song_heap)
+        song_list.append((songID, name, artist_name))
 
 
     db.commit()
@@ -320,4 +326,8 @@ def build_friends_recommended_playlist(friendID, numSongs):
     db.close()
 # returns a list of tuples (song ID, song name)
     return song_list 
+
+#insert_user_favorite_songs('test','test',[('songID', 'songName', 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 'sad', 'artistID', 'ArtistName')])
+#build_friends_recommended_playlist('test',1)
+#delete_user('test')
 

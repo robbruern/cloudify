@@ -36,6 +36,10 @@ html, body {
 .card-title{
   color: black;
 }
+h1{
+  font-size: 350% !important;
+  margin-bottom: 25px !important;
+}
 .card-text{
   color: rgb(8, 8, 8);
 }
