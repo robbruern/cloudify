@@ -18,7 +18,14 @@ html, body {
   margin: 0px;
   height: 100%;
 }
-
+.homeButton{
+  text-align: center !important;
+  margin-bottom: 15px !important;
+}
+.playlistpage{
+  background-color: #352F2E !important;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, .5) !important;
+}
 .login_container {
   display: flex;
   align-items: center;
@@ -27,6 +34,9 @@ html, body {
   height: 1000px;
   background-color: #352F2E; 
 
+}
+.song-card{
+  margin-bottom: 15px !important;
 }
 .friend{
   margin-top: 15px;

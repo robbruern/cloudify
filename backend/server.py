@@ -11,13 +11,9 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route('/token', methods = ['POST'])
 @cross_origin()
 def token():
-    print(request)
     tokenData = request.json['token']
-    userID = getUserID(tokenData)
-    userName = getUsername(tokenData)
-    print(userID, userName)
-    insert_user(userID, userName)
-    getTopTracks(tokenData)
+    userName = insertUser(tokenData)
+    syncUserData(tokenData)
     updateFollows(tokenData)
     return userName
 
@@ -42,7 +38,12 @@ def update():
 def createPlaylist():
     friendID = request.json['friendID']
     resp = build_friends_recommended_playlist(friendID, 20)
-    return str(resp)
+    playlist = ""
+    for tup in resp:
+        playlist += tup[1] + ',' + tup[2]
+        if tup != resp[-1]:
+            playlist += ';'
+    return str(playlist)
 
 @app.route('/deleteUser', methods = ['POST'])
 @cross_origin()

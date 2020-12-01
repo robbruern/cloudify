@@ -3,6 +3,7 @@
 import requests
 import json
 import ast
+import numpy as np
 from requests_toolbelt.utils import dump
 from database import *
 from relDatabase import *
@@ -20,7 +21,17 @@ def getUserID(token):
 #gets a user's id
 def getUsername(token):
     authHeader = buildAuthHeader(token)
-    userData = json.loads(requests.get("https://api.spotify.com/v1/me", headers = authHeader).text)
+    userResponse = requests.get("https://api.spotify.com/v1/me", headers = authHeader).text
+    userData = json.loads(userResponse)
+    return userData['display_name']
+
+#insert user to database
+def insertUser(token):
+    authHeader = buildAuthHeader(token)
+    userResponse = requests.get("https://api.spotify.com/v1/me", headers = authHeader).text
+    userData = json.loads(userResponse)
+    insert_user(userData['id'], userData['display_name'])
+    print(userData['id'] + userData['display_name'])
     return userData['display_name']
 
 #get show
@@ -54,6 +65,7 @@ def deleteUserRecentlyPlayed(token):
     authHeader = buildAuthHeader(token)
     userID = getUserID(token)
     delete_recently_played(userID)
+    deleteFrom(userID)
 
 #Returns the user's most recently played song in the database
 def getRecentlyListened(token):
@@ -63,24 +75,30 @@ def getRecentlyListened(token):
         return tableEntry[2]
     return "Empty"
     
-#function to get top songs of a user. Default limit is 50
+#function to insert the top songs of a user to the relational database. Default limit is 50
 def getTopTracks(token, limit = 50):
     authHeader = buildAuthHeader(token)
     topTracks = json.loads(requests.get('https://api.spotify.com/v1/me/top/tracks', headers = authHeader, params = {'limit' : limit}).text)
     trackList = []
+    genres = []
     userID = getUserID(token)
     for item in topTracks['items']:
         track = item
         featureData = json.loads(requests.get('https://api.spotify.com/v1/audio-features/' + track['id'], headers = authHeader, params = {'id' : track['id']}).text)
         artistUrl = 'https://api.spotify.com/v1/artists/' + track['artists'][0]['id']
         artistData = json.loads(requests.get(artistUrl, headers = authHeader).text)
+        # print(artistData)
         genre = ""
         if (len(artistData['genres']) != 0):
             genre = artistData['genres'][0]
+            for g in artistData['genres']:
+                genres.append(g)
+        # print(track['uri'])
         trackList.append([track['id'], track['name'], track['uri'], featureData['acousticness'], featureData['danceability'], featureData['energy'],
                                 featureData['instrumentalness'], featureData['liveness'], featureData['speechiness'], featureData['valence'], featureData['tempo'],
                                 genre, artistData['id'], artistData['name']])
     insert_user_favorite_songs(userID, getUsername(token), trackList)
+    insertGenres(userID, genres)
 
 
 #function to get top artists of a user. Default limit is 50
@@ -94,11 +112,21 @@ def getUserLibrary(token):
     url = 'https://api.spotify.com/v1/me/tracks'
     libraryData = json.loads(requests.get(url, headers = authHeader).text)
 
-#function ot get all user's saved podcasts (shows)
-def getUserPodcasts(token):
+#function to insert into relational database all user's saved shows
+def insertUserShows(token):
     authHeader = buildAuthHeader(token)
     url = 'https://api.spotify.com/v1/me/shows'
     showData = json.loads(requests.get(url, headers = authHeader).text)
+    showsRel = []
+    showsNeo = []
+    for item in showData['items']:
+        show = item['show']
+        showsRel.append((show['id'], show['name']))
+        showsNeo.append(show['id'])
+    userID = getUserID(token)
+    insert_show(showsRel)
+    insertShows(userID, showsNeo)
+    
 
 
 #helper function to get the follower data for a user
@@ -124,22 +152,10 @@ def updateFollows(token):
     userID, userIDs, artistIDList, userIDList, userFollowData = checkFollowing(token)
     for idx in range(len(artistIDList)):
         if artistIDList[idx]:
-            print('artist')
             createListen(userID, artistIDList[idx])
     for idx in range(len(userIDs)):
         if userFollowData[idx] == 'true':
             createFriendship(userID, userIDs[idx])
-
-#function to get a user's saved shows
-def getUsersShows(token):
-    authHeader = buildAuthHeader(token)
-    showsData = json.loads(requests.get('https://api.spotify.com/v1/me/shows', header = authHeader, params = {'limit' : limit}))
-    for item in showsData['items']:
-        show = item['show']
-        showID = show['id']
-        showName = show['name']
-        #then add show ID and Name to the relational database
-        #draw listens to relation to neo4j or add to a table with user and show as the two attributes in the relational database
 
 #function to give a show attributes related to the genres its users listen to
 def giveShowAttributes(showID, userID):
@@ -148,20 +164,35 @@ def giveShowAttributes(showID, userID):
     #add/update the data for a show in the relational database
     return "yup"
 
-#function to determine which shows a user might like
-def findRecommendedShows(userID):
-    #determine using the percentage of followed users that listen to the podcast and how the podcast aligns with the user's genres to determine if they would like the podcast.
-    # for show in shows:
-    #     #get number of followed users who also 'watch' said show
+# function to determine which shows a user might like
+def findRecommendedShows(token, number=3):
+    userID = getUserID(token)
+    shows = findShows(userID)
+    following = findFriends(userID)
+    showList = {}
+    for show in shows:
+        showListeners = findShowListeners(show)
+        followedListeners = 0
+        for f in following:
+            if f in showListeners:
+                followedListeners += 1
+        followpct = followedListeners / len(following)
 
-    #     #make dictionary storing which percentage of a user's songs fall under each of their followed genres
-    #     #make dictionary storing which percentage of a show's listeners songs fall under each of their followed genres
-    #     #for the overlapping genres, measure the closeness of the percentages and add up the differences between them
-    #     #add to the difference any percentages that a user listens to that aren't part of the podcasts genre list yet.
+        showGenres = findShowLikes(showID)
+        userGenres = findLikes(userID)
 
-    #     #Combing the number of followed users who also watch the show and the percentage differences between the overlapping genres.
-    #     #sort the shows depending on this number^^^^ to determine the shows a user might like
-    return "yup"
+        similarity = 1
+        for genre in userGenres:
+            if genre not in showGenres:
+                similarity -= userGenres[genre]
+            else:
+                similarity -= abs(userGenres[genre] - showGenres[genre])
+        showList[show] = similarity + followpct
+    sortedShows = dict(sorted(showList.items(), key=lambda item:item[1]))
+    if (number <= len(sortedShows.keys())):
+        return sortedShows.keys()[0:number]
+    else:
+        return sortedShows.keys()
 
 #function to have user save a show
 def saveShow(token, showID):
@@ -177,20 +208,26 @@ def createPlaylist(token, userID, songURIs, name):
     print(addedResponse.text)
 
 
-
 #build playlist
-def buildPlaylistAllFollowing():
-    #get user breakdown of what their top songs' feature data is
-    #go through their friends' top tracks and add that stuff to the breakdown above^
-    #average out all the data
-    #find songs that match closest all of that data
-    return "yup"
+def buildPlaylistAllFollowing(token):
+    userID = getUserID(token)
+    friends = findFriends(userID)
+    preferences = []
+    for friend in friends:
+        preferences.append(getAveragePrefs(friend))
+    matrix = np.array(preferences)
+    averages = np.mean(matrix, axis=0)
+    playlist = makePlaylistGivenAvg(np.ndarray.tolist(averages))
+    return playlist
 
-def buildPlaylistFromFriendData():
-    #use Ricky's playlist making function
+def buildPlaylistFromFriendData(userID, friendID):
+    
     return "yup"
 
 def buildPlaylistOnlyUser():
     #use only the user's data to build a playlist pulling from our song database
     return "yup"
 
+def syncUserData(token):
+    getTopTracks(token)
+    insertUserShows(token)

@@ -156,6 +156,18 @@ def insert_artist_table(cursor, insert_artist_table):
         "(ArtistID, ArtistName, Genre)"
         "VALUES (%s, %s, %s)")
     cursor.executemany(insert_artist, insert_artist_table)
+
+def insert_show(showList):
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+    insert_show = ("INSERT IGNORE INTO SpotifyShow"
+            "(ShowID, ShowName)"
+            "VALUES (%s, %s)")
+    cursor.executemany(insert_show, showList)
+    db.commit()
+    cursor.close()
+    db.close()
+    return
     
 def insert_user(userID, userName):
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
@@ -185,16 +197,16 @@ def insert_user_favorite_songs(userID, userName, songInfoList):
 
     print(userID)
     print(userName)
-    for s in songInfoList:
-        print(s)
+    # for s in songInfoList:
+    #     print(s)
 
     insert_user_song_data = []
     insert_song_data = []
     insert_artist_data = []
     for s in songInfoList:
         insert_user_song_data.append((userID, s[0]))
-        insert_song_data.append((s[0], s[12], s[1], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10]), s[2])
-        insert_artist_data.append((s[11], s[12], s[10]))
+        insert_song_data.append((s[0], s[12], s[1], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[2]))
+        insert_artist_data.append((s[12], s[13], s[11]))
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
     "(UserID, SongID)"
@@ -317,7 +329,7 @@ def build_friends_recommended_playlist(friendID, numSongs):
         if song[12] in genre_list:
             total = total * .5
         heapq.heappush(song_heap, (total, song[1], song[2], song[11], song[12]))
-        print(song[11])
+        # print(song[11])
     song_list = []
     for i in range(numSongs):
         if len(song_heap) == 0:
@@ -335,4 +347,79 @@ def build_friends_recommended_playlist(friendID, numSongs):
 #insert_user_favorite_songs('test','test',[('songID', 'songName', 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 'sad', 'artistID', 'ArtistName')])
 #build_friends_recommended_playlist('test',1)
 #delete_user('test')
+
+#get top songs in common
+def sharedTopSongs(user1, user2):
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+    query = ("SELECT DISTINCT SpotifySong.SongName, SpotifyArtist.ArtistName"
+        "FROM UsersFavoriteSongs AS u1 JOIN UsersFavoriteSongs AS u2 ON (u1.UserID <> u2.UserID and u1.SongID = u2.SongID) JOIN SpotifySong"
+        "JOIN SpotifyArtist ON (SpotifyArtist.ArtistID = SpotifySong.ArtistID)"
+        "WHERE SpotifySong.SongID = u1.SongID AND u1.UserID LIKE " +str(user1)+" AND u2.UserID LIKE "+str(user2)+"")
+    cursor.execute(query, ())
+
+#get average of preferences for user
+def getAveragePrefs(userID):
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    # retrive avg values for every song's float parameters
+    agg_query = ("SELECT AVG(Acousticness), AVG(Danceability), AVG(Energy), AVG(Instrumentalness),"
+    " AVG(Liveness), AVG(Speechiness), AVG(Valence), AVG(Tempo)" 
+    " FROM UsersFavoriteSongs NATURAL JOIN SpotifySong"
+    " WHERE UserID LIKE %s")
+    cursor.execute(agg_query, (userID,))
+
+    averages = [0.0] * 8
+    isIn = False
+    for agg in cursor:
+        averages.append(agg[0])
+        averages.append(agg[1])
+        averages.append(agg[2])
+        averages.append(agg[3])
+        averages.append(agg[4])
+        averages.append(agg[5])
+        averages.append(agg[6])
+        averages.append(agg[7])
+    db.commit()
+    cursor.close()
+    db.close()
+    return averages
+    
+def makePlaylistGivenAvg(avgs):
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    song_query = ("SELECT * FROM SpotifySong NATURAL JOIN SpotifyArtist")
+
+    cursor.execute(song_query, ())
+    
+    song_heap = []
+
+    for song in cursor:
+        total = 0.0
+        total += abs(avgAcoustic - song[3])
+        total += abs(avgDance - song[4])
+        total += abs(avgEnergy - song[5])
+        total += abs(avgInstrument - song[6])
+        total += abs(avgLive - song[7])
+        total += abs(avgSpeech - song[8])
+        total += abs(avgValence - song[9])
+        total += abs(avgTempo - song[10])
+        if song[0] in artist_list:
+            total = total * .75
+        if song[12] in genre_list:
+            total = total * .5
+        heapq.heappush(song_heap, (total, song[1], song[2], song[11], song[12]))
+        # print(song[11])
+    song_list = []
+    for i in range(numSongs):
+        if len(song_heap) == 0:
+            break
+        num, songID, name, uri, artist_name = heapq.heappop(song_heap)
+        song_list.append((songID, name, artist_name, uri))
+    db.commit()
+    cursor.close()
+    db.close()
+    return song_list
 
