@@ -146,8 +146,8 @@ def delete_recently_played(userID):
 def insert_song_table(cursor, insert_song_table):
     
     insert_song = ("INSERT IGNORE INTO SpotifySong"
-        "(SongID, ArtistID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo)"
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+        "(SongID, ArtistID, SongName, Acousticness, Danceability, Energy, Instrumentalness, Liveness, Speechiness, Valence, Tempo, uri)"
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
     cursor.executemany(insert_song, insert_song_table)
 
 def insert_artist_table(cursor, insert_artist_table):
@@ -175,20 +175,25 @@ def insert_user(userID, userName):
 # this method will also call insert_song_table so we can
 # work with a collection of data later
 def insert_user_favorite_songs(userID, userName, songInfoList):
-    # list of (userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10])
-    # (songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
+    # list of (userID, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11])
+    # (songID, songName, uri, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
     # should add ArtistID and ArtistsName 
-    # later to s[11] and s[12] in songList
+    # later to s[12] and s[13] in songList
 
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
+
+    print(userID)
+    print(userName)
+    for s in songInfoList:
+        print(s)
 
     insert_user_song_data = []
     insert_song_data = []
     insert_artist_data = []
     for s in songInfoList:
         insert_user_song_data.append((userID, s[0]))
-        insert_song_data.append((s[0], s[11], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9]))
+        insert_song_data.append((s[0], s[12], s[1], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10]), s[2])
         insert_artist_data.append((s[11], s[12], s[10]))
 
     insert_recent = ("INSERT IGNORE INTO UsersFavoriteSongs"
@@ -311,20 +316,20 @@ def build_friends_recommended_playlist(friendID, numSongs):
             total = total * .75
         if song[12] in genre_list:
             total = total * .5
-        heapq.heappush(song_heap, (total, song[1], song[2], song[11]))
+        heapq.heappush(song_heap, (total, song[1], song[2], song[11], song[12]))
         print(song[11])
     song_list = []
     for i in range(numSongs):
         if len(song_heap) == 0:
             break
-        num, songID, name, artist_name = heapq.heappop(song_heap)
-        song_list.append((songID, name, artist_name))
+        num, songID, name, uri, artist_name = heapq.heappop(song_heap)
+        song_list.append((songID, name, artist_name, uri))
 
 
     db.commit()
     cursor.close()
     db.close()
-# returns a list of tuples (song ID, song name)
+# returns a list of tuples (song ID, song name, artist name)
     return song_list 
 
 #insert_user_favorite_songs('test','test',[('songID', 'songName', 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 'sad', 'artistID', 'ArtistName')])

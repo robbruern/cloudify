@@ -17,7 +17,7 @@ def token():
     userName = getUsername(tokenData)
     print(userID, userName)
     insert_user(userID, userName)
-    # getTopTracks(tokenData)
+    getTopTracks(tokenData)
     updateFollows(tokenData)
     return userName
 
@@ -64,5 +64,12 @@ def updateFollow():
     tokenData  = request.json['token']
     updateFollows()
     return "follow updated"
+
+@app.route('/addPlaylistToLibrary', methods = ['POST'])
+@cross_origin()
+def addPlaylistToLibrary():
+    tokenData = request.json['token']
+    addPlaylist()
+    return "playlist added"
 
 app.run(port = 5000, host = "0.0.0.0")

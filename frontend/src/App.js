@@ -12,14 +12,13 @@ const axios = require('axios');
 
 let friends = [];
 let name = "NAME";
+let friendID = '';
 
 function App() {
   const [isLoading, setLoading] = useState(true);
-  const [isPlayist, setPlaylist] = useState(true);
   const [users, setUsers] = useState();
   const [name, setName] = useState();
-
-
+  const [isPlaylist, setPlaylist] = useState(false);
 
   document.body.style.background = "#352F2E";
   document.body.style.boxShadow = "inset 0 0 100px rgba(0, 0, 0, .5)";
@@ -67,7 +66,7 @@ if(!token){
                 </Container>
               </div>
     }
-      return <div className="app">
+    return <div className="app">
       <div className="header">
         <h1>Welcome Back to Cloudify {name} !</h1>
       </div>
@@ -92,7 +91,7 @@ if(!token){
           <Card.Text>
             {userName}
           </Card.Text>
-          <Button variant="success" onClick={()=>createPlaylist(userID)}>Create Playlist</Button>
+          <Button variant="success" onClick={()=>newPage(userID)}>Create Playlist</Button>
         </Card.Body>
       </Card>
       </Col>
@@ -107,6 +106,15 @@ if(!token){
     
   }
 }
+
+function newPage(friendID){
+  console.log("here");
+  return <div className="app">
+        <p>Insert playlist here</p>
+      </div>
+
+}
+
 
 async function sendToken(token){
   console.log(token);
