@@ -120,6 +120,28 @@ def insertGenresTo(tx, id1, genres):
                 )
         tx.run(query, id1=id1, genre=genre)
 
+def findTotalLikes(id1):
+    with driver.session() as session:
+        result = session.write_transaction(findTotalLikesOf, id1)
+        return result
+
+def findTotalLikesOf(tx, id1):
+    query = (
+            "MATCH (u:User)-[l:LIKES]->(g:Genre) "
+            "WHERE u.spotifyID = $id1 "
+            "RETURN g.name as Name, l.weight as Weight "
+    )
+    result = tx.run(query, id1=id1)
+    genres = []
+    genreDict = {}
+    for record in result:
+        thisTuple = (record["Name"], float(record["Weight"]))
+        # print(thisTuple)
+        genres.append(thisTuple)
+    for g in genres:
+        genreDict[g[0]] = g[1]
+    return genreDict
+
 def findLikes(id1):
     with driver.session() as session:
         result = session.write_transaction(findLikesOf, id1)
@@ -150,11 +172,13 @@ def insertShows(id1, shows):
         session.write_transaction(insertShowsTo, id1, shows)
 
 def insertShowsTo(tx, id1, shows):
+    print("inserting to neo4j")
     query = (
             "MERGE (u:User {spotifyID: $id1 }) "
             )
     tx.run(query, id1=id1)
     for i in range(len(shows)):
+        print("forloop")
         id2 = shows[i]
         query = (
                 "MERGE (s:Show {showID: $id2 }) "
@@ -169,8 +193,9 @@ def insertShowsTo(tx, id1, shows):
                 )
         tx.run(query, id1=id1, id2=id2)
 
-        genreDict = findLikes(id1)
+        genreDict = findTotalLikes(id1)
         insertShowGenres(shows[i], list(genreDict.keys()), list(genreDict.values()))
+        print("end for loop")
 
 def findShows(id1):
     with driver.session() as session:
@@ -212,25 +237,34 @@ def insertShowGenres(showID, genres, weights):
         session.write_transaction(insertShowGenresTo, showID, genres, weights)
 
 def insertShowGenresTo(tx, showID, genres, weights):
+    print("inserting into show genres")
     query = (
             "MERGE  (s:Show {showID: $showID }) "
             )
     tx.run(query, showID=showID)
-
+    print(genres)
+    print(weights)
     for i in range(len(genres)):
+        print("for loop 2")
         genre = genres[i]
+        print("1")
         query = (
                 "MERGE (g:Genre {name: $genre }) "
                 )
+        print("2")
         tx.run(query, genre = genre)
-
+        print("3")
         query = (
                 "MATCH (s:Show {showID: $showID }), (g:Genre {name: $genre }) "
                 "MERGE (s)-[l:LIKES]->(g) "
                 "ON CREATE SET l.weight = $weight "
                 "ON MATCH SET l.weight = l.weight + $weight "
                 )
-        tx.run(query, showID=showID, genre=genre, weight=weights[i])
+        print(showID)
+        print(genre)
+        print(weights[i])
+        tx.run(query, showID=showID, genre=genre, weight=int(weights[i]))
+        print("end for loop 2")
 
 def findShowLikes(showID):
     with driver.session() as session:

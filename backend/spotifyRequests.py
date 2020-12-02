@@ -117,12 +117,14 @@ def insertUserShows(token):
     authHeader = buildAuthHeader(token)
     url = 'https://api.spotify.com/v1/me/shows'
     showData = json.loads(requests.get(url, headers = authHeader).text)
+    print("request finished")
     showsRel = []
     showsNeo = []
     for item in showData['items']:
         show = item['show']
         showsRel.append((show['id'], show['name']))
         showsNeo.append(show['id'])
+    print("for loop finished")
     userID = getUserID(token)
     insert_show(showsRel)
     insertShows(userID, showsNeo)
@@ -160,9 +162,13 @@ def updateFollows(token):
 # function to determine which shows a user might like
 def findRecommendedShows(userID, number=3):
     shows = retrieve_show_ids()
+    usersShows = findShows(userID)
+    print(usersShows)
     following = findFriends(userID)
     showList = {}
     for show in shows:
+        if show in usersShows:
+            continue
         showListeners = findShowListeners(show)
         followedListeners = 0
         for f in following:
@@ -231,6 +237,7 @@ def buildPlaylistFromFriendData(userID, friendID):
 
 def syncUserData(token):
     getTopTracks(token)
+    print("top tracks inserted")
     insertUserShows(token)
 
 def addPlaylist(token, uriList, name):

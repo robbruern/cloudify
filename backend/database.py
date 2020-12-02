@@ -207,6 +207,7 @@ def insert_artist_table(cursor, insert_artist_table):
     cursor.executemany(insert_artist, insert_artist_table)
 
 def insert_show(showList):
+    print("inserting show")
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
     insert_show = ("INSERT IGNORE INTO SpotifyShow"
@@ -216,6 +217,7 @@ def insert_show(showList):
     db.commit()
     cursor.close()
     db.close()
+    print("show inserted")
     return
 
 def insert_user(userID, userName):
