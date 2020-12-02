@@ -32,7 +32,7 @@ def insertUser(token):
     userData = json.loads(userResponse)
     insert_user(userData['id'], userData['display_name'])
     print(userData['id'] + userData['display_name'])
-    return userData['display_name']
+    return userData['display_name'], userData['id']
 
 #get show
 def getShow(token, showID):
@@ -65,7 +65,7 @@ def deleteUserRecentlyPlayed(token):
     authHeader = buildAuthHeader(token)
     userID = getUserID(token)
     delete_recently_played(userID)
-    deleteFrom(userID)
+    deleteUser(userID)
 
 #Returns the user's most recently played song in the database
 def getRecentlyListened(token):
@@ -76,7 +76,7 @@ def getRecentlyListened(token):
     return "Empty"
     
 #function to insert the top songs of a user to the relational database. Default limit is 50
-def getTopTracks(token, limit = 50):
+def getTopTracks(token, limit = 100):
     authHeader = buildAuthHeader(token)
     topTracks = json.loads(requests.get('https://api.spotify.com/v1/me/top/tracks', headers = authHeader, params = {'limit' : limit}).text)
     trackList = []
@@ -157,17 +157,9 @@ def updateFollows(token):
         if userFollowData[idx] == 'true':
             createFriendship(userID, userIDs[idx])
 
-#function to give a show attributes related to the genres its users listen to
-def giveShowAttributes(showID, userID):
-    #get artists a user listens to from neo4j
-    #iterate over the artists, and increment the genres that the user's top artists are assosciated with
-    #add/update the data for a show in the relational database
-    return "yup"
-
 # function to determine which shows a user might like
-def findRecommendedShows(token, number=3):
-    userID = getUserID(token)
-    shows = findShows(userID)
+def findRecommendedShows(userID, number=3):
+    shows = retrieve_show_ids()
     following = findFriends(userID)
     showList = {}
     for show in shows:
@@ -178,7 +170,7 @@ def findRecommendedShows(token, number=3):
                 followedListeners += 1
         followpct = followedListeners / len(following)
 
-        showGenres = findShowLikes(showID)
+        showGenres = findShowLikes(show)
         userGenres = findLikes(userID)
 
         similarity = 1
@@ -190,22 +182,21 @@ def findRecommendedShows(token, number=3):
         showList[show] = similarity + followpct
     sortedShows = dict(sorted(showList.items(), key=lambda item:item[1]))
     if (number <= len(sortedShows.keys())):
-        return sortedShows.keys()[0:number]
+        return list(sortedShows.keys())[0:number]
     else:
-        return sortedShows.keys()
+        return list(sortedShows.keys())
 
 #function to have user save a show
 def saveShow(token, showID):
     authHeader = buildAuthHeader(token)
     requests.put('https://api.spotify.com/v1/me/shows', headers = authHeader, params = {'ids' : showID})
 
-#function to make the playlist in spotify.
+#function to make the playlist in spotify
 def createPlaylist(token, userID, songURIs, name):
-    authHeader = buildAuthHeader(token)
-    createResponse = requests.put('https://api.spotify.com/v1/users/' + userID + '/playlists', headers = authHeader, params = {'name' : name})
+    authHeader = {'Authorization' : "Bearer " + token}
+    createResponse = requests.post('https://api.spotify.com/v1/users/' + userID + '/playlists', headers = authHeader, json ={'name' : name})
     playlistID = json.loads(createResponse.text)['id']
-    addedResponse = requests.put('https://api.spotify.com/v1/playlists/' + playlistID + '/tracks', headers = authHeader, params = {'uris' : ",".join(songURIs)})
-    print(addedResponse.text)
+    addedResponse = requests.post('https://api.spotify.com/v1/playlists/' + playlistID + '/tracks', headers = authHeader, params = {'uris' : ",".join(songURIs)})
 
 
 #build playlist
@@ -220,14 +211,36 @@ def buildPlaylistAllFollowing(token):
     playlist = makePlaylistGivenAvg(np.ndarray.tolist(averages))
     return playlist
 
-def buildPlaylistFromFriendData(userID, friendID):
-    
-    return "yup"
+#get a dictionary relating friend id to friend name for friends
+def getFollowingUsers(userID):
+    friends = findFriends(userID)
+    users = retrieve_active_userNameID()
+    ret = {}
+    for friend in friends:
+        ret[friend] = users[friend]
+    return ret
 
-def buildPlaylistOnlyUser():
-    #use only the user's data to build a playlist pulling from our song database
-    return "yup"
+def buildPlaylistFromFriendData(userID, friendID):
+    preferences = []
+    preferences.append(getAveragePrefs(friendID))
+    preferences.append(getAveragePrefs(userID))
+    matrix = np.array(preferences)
+    averages = np.mean(matrix, axis=0)
+    playlist = makePlaylistGivenAvg(np.ndarray.tolist(averages))
+    return playlist
 
 def syncUserData(token):
     getTopTracks(token)
     insertUserShows(token)
+
+def addPlaylist(token, uriList, name):
+    userID = getUserID(token)
+    createPlaylist(token, userID, uriList, name)
+    return "yup"
+
+def getShowNames(showList):
+    shows = retrieve_shows()
+    ret = []
+    for showID in showList:
+        ret.append(shows[showID])
+    return ret

@@ -72,6 +72,55 @@ def retrieve_active_userIDs():
 
     return ret
 
+def retrieve_shows():
+    db = pymysql.connect(host='127.0.0.1', database='Music', user='root', password='eiHY?srFG70V')
+    cursor = db.cursor()
+    query = ('SELECT ShowID, ShowName FROM SpotifyShow')
+    cursor.execute(query)
+
+
+    ret = {}
+    for tup in cursor:
+        ret[tup[0]] = tup[1]
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return ret
+
+def retrieve_show_ids():
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT ShowID FROM SpotifyShow")
+    cursor.execute(query)
+
+    shows = []
+    for show in cursor:
+        shows.append(show[0])
+    db.commit()
+    cursor.close()
+    db.close()
+    return shows
+
+def retrieve_active_userNameID():
+    db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
+    cursor = db.cursor()
+
+    query = ("SELECT UserID, Name FROM ActiveUsers")
+    cursor.execute(query)
+
+    ret = {}
+    for tup in cursor:
+        ret[tup[0]] = tup[1]
+
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return ret
+
 def retrieve_artistIDs():
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
@@ -168,7 +217,7 @@ def insert_show(showList):
     cursor.close()
     db.close()
     return
-    
+
 def insert_user(userID, userName):
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
@@ -281,7 +330,6 @@ def build_friends_recommended_playlist(friendID, numSongs):
     
     isIn = False
     for agg in cursor:
-        print("agg[0] is : " + str(type(agg[0])))
         if agg[0] != None:
             isIn = True
         avgAcoustic = agg[0]
@@ -329,7 +377,6 @@ def build_friends_recommended_playlist(friendID, numSongs):
         if song[12] in genre_list:
             total = total * .5
         heapq.heappush(song_heap, (total, song[1], song[2], song[11], song[12]))
-        # print(song[11])
     song_list = []
     for i in range(numSongs):
         if len(song_heap) == 0:
@@ -369,10 +416,9 @@ def getAveragePrefs(userID):
     " FROM UsersFavoriteSongs NATURAL JOIN SpotifySong"
     " WHERE UserID LIKE %s")
     cursor.execute(agg_query, (userID,))
-
-    averages = [0.0] * 8
-    isIn = False
+    averages = []
     for agg in cursor:
+        print("AGGREGATED IS: " + str(agg))
         averages.append(agg[0])
         averages.append(agg[1])
         averages.append(agg[2])
@@ -384,36 +430,46 @@ def getAveragePrefs(userID):
     db.commit()
     cursor.close()
     db.close()
+
     return averages
     
-def makePlaylistGivenAvg(avgs):
+def makePlaylistGivenAvg(avg):
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
+    artist_query = ("SELECT DISTINCT ArtistID, Genre "
+            "FROM UsersFavoriteSongs NATURAL JOIN SpotifyArtist")
+
+    cursor.execute(artist_query, ())
+
+    genre_list = []
+    artist_list = []
+    for art in cursor:
+        artist_list.append(art[0])
+        if art[1] not in genre_list:
+            genre_list.append(art[1])
+    
     song_query = ("SELECT * FROM SpotifySong NATURAL JOIN SpotifyArtist")
 
     cursor.execute(song_query, ())
-    
     song_heap = []
-
     for song in cursor:
         total = 0.0
-        total += abs(avgAcoustic - song[3])
-        total += abs(avgDance - song[4])
-        total += abs(avgEnergy - song[5])
-        total += abs(avgInstrument - song[6])
-        total += abs(avgLive - song[7])
-        total += abs(avgSpeech - song[8])
-        total += abs(avgValence - song[9])
-        total += abs(avgTempo - song[10])
+        total += abs(avg[0] - song[3])
+        total += abs(avg[1] - song[4])
+        total += abs(avg[2] - song[5])
+        total += abs(avg[3] - song[6])
+        total += abs(avg[4] - song[7])
+        total += abs(avg[5] - song[8])
+        total += abs(avg[6]- song[9])
+        total += abs(avg[7] - song[10])
         if song[0] in artist_list:
             total = total * .75
         if song[12] in genre_list:
             total = total * .5
         heapq.heappush(song_heap, (total, song[1], song[2], song[11], song[12]))
-        # print(song[11])
     song_list = []
-    for i in range(numSongs):
+    for i in range(25):
         if len(song_heap) == 0:
             break
         num, songID, name, uri, artist_name = heapq.heappop(song_heap)
@@ -422,4 +478,3 @@ def makePlaylistGivenAvg(avgs):
     cursor.close()
     db.close()
     return song_list
-

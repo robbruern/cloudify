@@ -20,11 +20,24 @@ html, body {
 }
 .homeButton{
   text-align: center !important;
-  margin-bottom: 15px !important;
+  margin-bottom: 5px !important;
 }
 .playlistpage{
   background-color: #352F2E !important;
   box-shadow: inset 0 0 100px rgba(0, 0, 0, .5) !important;
+}
+
+.playlist_row {
+    column-gap: 20px;
+}
+
+.playlist_container {
+    display:flex;
+    align-items: center;
+    height: auto;
+    flex-direction: column;
+    background-color: #352F2E;
+    margin: 20px;
 }
 .login_container {
   display: flex;
@@ -46,6 +59,16 @@ html, body {
 .card-title{
   color: black;
 }
+
+.deleteButt{
+  margin-left: 20px;
+  margin-top: 15px;
+}
+.AddPlaylist{
+  text-align: center !important;
+  margin-bottom:10px;
+}
+
 h1{
   font-size: 350% !important;
   margin-bottom: 25px !important;
@@ -75,6 +98,12 @@ h1{
 .header{
   color: rgb(14, 197, 8);
   text-align: center;
+}
+.deleteButton{
+    display:flex;
+    align-items: center;
+    height: auto;
+    margin: 20px;
 }
 .App-header {
   background-color: #282c34;
