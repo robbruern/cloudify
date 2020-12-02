@@ -117,17 +117,24 @@ def insertUserShows(token):
     authHeader = buildAuthHeader(token)
     url = 'https://api.spotify.com/v1/me/shows'
     showData = json.loads(requests.get(url, headers = authHeader).text)
+    userID = getUserID(token)
+    usersShows = findShows(userID)
     print("request finished")
     showsRel = []
     showsNeo = []
     for item in showData['items']:
         show = item['show']
         showsRel.append((show['id'], show['name']))
-        showsNeo.append(show['id'])
+        if show['id'] not in usersShows:
+            showsNeo.append(show['id'])
     print("for loop finished")
-    userID = getUserID(token)
     insert_show(showsRel)
+    genreDict = findTotalLikes(userID)
+    for showID in showsNeo:
+        insertShowGenres(showID, list(genreDict.keys()))
     insertShows(userID, showsNeo)
+    
+
     
 
 

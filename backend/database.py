@@ -181,7 +181,7 @@ def delete_recently_played(userID):
     if(isIn == False):
         return
 
-    delete_recent = ("DELETE FROM RecentlyPlayed WHERE UserID LIKE %s")
+    delete_recent = ("DELETE FROM UsersFavoriteSongs WHERE UserID LIKE %s")
     cursor.execute(delete_recent, (userID,))
 
     delete_user = ("DELETE FROM ActiveUsers WHERE UserID LIKE %s")

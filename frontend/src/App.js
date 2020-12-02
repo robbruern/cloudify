@@ -91,7 +91,7 @@ if(!token){
             </div>
             <Row className="playlist_row">
                 <Button variant="success" onClick={()=>userLibraryPlaylist(uid, token)}>Create Playlist From All Your Friends</Button>
-                <Button variant="success" onClick={()=>podcastPage(uid, token)}>Get Recommended Podcasts</Button>
+                {/* <Button variant="success" onClick={()=>podcastPage(uid, token)}>Get Recommended Podcasts</Button> */}
             </Row>
         </Container>
         <Container>
@@ -234,7 +234,7 @@ function returnHome(token, uid){
             </div>
             <Row className="playlist_row">
                 <Button variant="success" onClick={()=>userLibraryPlaylist(uid, token)}>Create Playlist From All Your Friends</Button>
-                <Button variant="success" onClick={()=>podcastPage(uid, token)}>Get Recommended Podcasts</Button>
+                {/* <Button variant="success" onClick={()=>podcastPage(uid, token)}>Get Recommended Podcasts</Button> */}
             </Row>
         </Container>
         <Jumbotron>Hit “Create Playlist” over a friends name to dynamically generate a playlist based on their song interests</Jumbotron>
