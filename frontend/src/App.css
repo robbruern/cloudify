@@ -13,7 +13,10 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
+.app{
+  background-color: #352F2E !important;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, .5) !important;
+}
 html, body {
   margin: 0px;
   height: 100%;
@@ -23,8 +26,8 @@ html, body {
   margin-bottom: 5px !important;
 }
 .playlistpage{
-  background-color: #352F2E !important;
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, .5) !important;
+  background-color: #352F2E ;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, .5) ;
 }
 
 .playlist_row {
@@ -63,6 +66,7 @@ html, body {
 .deleteButt{
   margin-left: 20px;
   margin-top: 15px;
+  margin-bottom: 20px;
 }
 .AddPlaylist{
   text-align: center !important;
@@ -94,6 +98,7 @@ h1{
   background-color: rgb(34, 31, 31);
   height: auto;
   border-radius: 15px;
+  padding-bottom: 10px;
 }
 .header{
   color: rgb(14, 197, 8);
@@ -104,6 +109,7 @@ h1{
     align-items: center;
     height: auto;
     margin: 20px;
+    
 }
 .App-header {
   background-color: #282c34;

@@ -7,7 +7,7 @@ def insert_recently_played(userID, songID, songName, acousticness, danceability,
     db = pymysql.connect(host='127.0.0.1',database='Music',user='root',password='eiHY?srFG70V') 
     cursor = db.cursor()
 
-    query = ("SELECT UserID FROM ActiveUsers WHERE UserID LIKE %s")
+    query = ("SELECT UserID FROM ActiveUsers NATURAL JOIN RecentlyPlayed WHERE UserID LIKE %s")
     cursor.execute(query, (userID,))
 
     isIn = False
@@ -26,12 +26,6 @@ def insert_recently_played(userID, songID, songName, acousticness, danceability,
         "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
         insert_song_data = (userID, songID, songName, acousticness, danceability, energy, instrumentalness, liveness, speechiness, valence, tempo, genre)
         cursor.execute(insert_recent, insert_song_data)
-
-        insert_user = ("INSERT INTO ActiveUsers"
-        "(UserID)"
-        "VALUES (%s)")
-        insert_user_data = (userID,)
-        cursor.execute(insert_user, insert_user_data)
 
     db.commit()
     cursor.close()
@@ -153,7 +147,7 @@ def retrieve_recently_played(userID):
     if(isIn == False):
         return None
 
-    query = ("SELECT * FROM RecentlyPlayed WHERE UserID LIKE %s")
+    query = ("SELECT SongName FROM RecentlyPlayed WHERE UserID LIKE %s")
     cursor.execute(query, (userID,))
     
     ret = []

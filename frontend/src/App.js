@@ -23,8 +23,8 @@ function App() {
   const [token, setToken] = useState();
   
 
-  document.body.style.background = "#352F2E";
-  document.body.style.boxShadow = "inset 0 0 100px rgba(0, 0, 0, .5)";
+document.body.style.background = "#352F2E";
+document.body.style.boxShadow = "inset 0 0 100px rgba(0, 0, 0, .5)";
   // load token from cookies, if previously saved
   // let token = Cookies.get("spotifyAuthToken");
 
@@ -58,7 +58,7 @@ if(!token){
         redirectUri='http://52.14.205.92:3000/callback'
         clientID='97f09e12e273458e9cc101218963d6c5'
         onAccessToken={(token) => setToken(token)}
-        scopes={['user-read-private', 'user-read-email', 'user-top-read', 'user-follow-read', 'user-library-read', 'playlist-modify-public']}
+        scopes={['user-read-private', 'user-read-email', 'user-top-read', 'user-follow-read', 'user-library-read', 'playlist-modify-public', 'user-read-recently-played']}
       />
     </div>
    </div>
@@ -92,6 +92,7 @@ if(!token){
             <Row className="playlist_row">
                 <Button variant="success" onClick={()=>userLibraryPlaylist(uid, token)}>Create Playlist From All Your Friends</Button>
                 <Button variant="success" onClick={()=>podcastPage(uid, token)}>Get Recommended Podcasts</Button>
+                <Button variant="success" onClick={()=>getRecentlyPlayed(token)}>Get/Update Recently Played</Button>
             </Row>
         </Container>
         <Container>
@@ -123,10 +124,11 @@ if(!token){
                 })}
                 </Row>
             </Container>
-        </Container>
-        <div>
+            <div>
             <Button className = "deleteButt" variant="danger" onClick={()=>deleteAccount(token)}>Delete Your Information</Button>
-        </div>
+          </div>
+        </Container>
+        
     </div>
   </div>
 
@@ -187,9 +189,9 @@ async function podcastPage(userID, token){
   console.log(response);
   var podcasts = response.data.split("`");
   ReactDOM.render(
-  <div className="app">
+  <div className="pod">
     <div id = "root">
-      <div className="playlistpage">
+      <div className="podcastpage">
     <div className="header">
                 <h1>Your Recommended Podcasts!</h1>
               </div>
@@ -235,6 +237,7 @@ function returnHome(token, uid){
             <Row className="playlist_row">
                 <Button variant="success" onClick={()=>userLibraryPlaylist(uid, token)}>Create Playlist From All Your Friends</Button>
                 <Button variant="success" onClick={()=>podcastPage(uid, token)}>Get Recommended Podcasts</Button>
+                <Button variant="success" onClick={()=>getRecentlyPlayed(token)}>Get/Update Recently Played</Button>
             </Row>
         </Container>
         <Jumbotron>Hit “Create Playlist” over a friends name to dynamically generate a playlist based on their song interests</Jumbotron>
@@ -264,10 +267,11 @@ function returnHome(token, uid){
       })}
       </Row>
     </Container>
-  </Container>
-      <div>
+    <div>
           <Button className = "deleteButt" variant="danger" onClick={()=>deleteAccount(token)}>Delete Your Information</Button>
       </div>
+  </Container>
+      
   </div>
   </div>, document.getElementById('root'))
 }
@@ -336,6 +340,20 @@ async function createPlaylist(userID, friendID, name){
   return await axios.post('http://52.14.205.92:5000/createFriendPlaylist', {userID: userID, friendID: friendID, name: name})
       .then(function (response) {
         console.log(response);
+        return response;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+}
+
+async function getRecentlyPlayed(token){
+  return await axios.post('http://52.14.205.92:5000/demoQuery', {token: token})
+      .then(function (response) {
+        console.log(response);
+        var msg = "Recently Played Song: ";
+        msg = msg.concat(response.data);
+        alert(msg);
         return response;
       })
       .catch(function (error) {

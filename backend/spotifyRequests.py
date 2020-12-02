@@ -72,7 +72,7 @@ def getRecentlyListened(token):
     userID = getUserID(token)
     tableEntry = retrieve_recently_played(userID)
     if tableEntry:
-        return tableEntry[2]
+        return tableEntry[0]
     return "Empty"
     
 #function to insert the top songs of a user to the relational database. Default limit is 50

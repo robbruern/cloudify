@@ -60,8 +60,9 @@ def deleteUser():
 @cross_origin()
 def demoQuery():
     tokenData = request.json['token']
+    addRecentlyListened(tokenData, 1)
     print(getRecentlyListened(tokenData))
-    return str(getRecentlyListened(tokenData))
+    return str(getRecentlyListened(tokenData)[0])
 
 @app.route('/updateFollow', methods = ['POST'])
 @cross_origin
